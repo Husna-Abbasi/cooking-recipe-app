@@ -20,7 +20,7 @@ app.use('/api/description', descriptionRoutes);
 
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGO_URL, {
   // These options are deprecated and can be removed
   // useNewUrlParser: true,
   // useUnifiedTopology: true,
