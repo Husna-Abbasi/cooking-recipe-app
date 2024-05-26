@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const authenticateToken = require('../routes/recipes');
 const Description = require('../models/Description');
 
+const cors = require('cors');
+
+router.use(cors());
 // POST /api/description/create
 // Create a new recipe
-router.post('/create', authenticateToken, async (req, res) => {
+router.post('/create', async (req, res) => {
   try {
     // Check if the name, title, and description are provided in the request body
     const { title, description } = req.body;
@@ -29,6 +31,33 @@ router.post('/create', authenticateToken, async (req, res) => {
       description: savedDescription.description
       
     });
+  } catch (err) {
+    // Handle errors
+    res.status(500).json({ error: err.message });
+  }
+});
+router.get('/all', async (req, res) => {
+  try {
+    // Fetch all descriptions from the database
+    const descriptions = await Description.find();
+
+    // Send success response with all descriptions
+    res.json(descriptions);
+  } catch (err) {
+    // Handle errors
+    res.status(500).json({ error: err.message });
+  }
+});
+router.delete('/:id', async (req, res) => {
+  try {
+    // Find the description by ID and delete it
+    const description = await Description.findByIdAndDelete(req.params.id);
+    if (!description) {
+      return res.status(404).json({ message: 'Description not found' });
+    }
+
+    // Send success response
+    res.json({ message: 'Description deleted' });
   } catch (err) {
     // Handle errors
     res.status(500).json({ error: err.message });

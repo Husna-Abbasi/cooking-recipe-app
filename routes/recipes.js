@@ -1,26 +1,17 @@
 // routes/recipes.js
 const express = require('express');
 const Recipe = require('../models/Recipe');
-const jwt = require('jsonwebtoken');
 const router = express.Router();
+const cors = require('cors');
 
-// Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-  if (!token) return res.sendStatus(401);
+router.use(cors());
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-};
 
 // Create a new recipe
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const { title, ingredients, instructions, image } = req.body;
-    const recipe = new Recipe({ title, ingredients, instructions, image, createdBy: req.user.id });
+    const { title, ingredients, instructions } = req.body;
+    const recipe = new Recipe({ title, ingredients, instructions});
     await recipe.save();
     res.status(201).json(recipe);
   } catch (err) {
@@ -29,9 +20,9 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // Get all recipes
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const recipes = await Recipe.find({ createdBy: req.user.id });
+    const recipes = await Recipe.find();
     res.json(recipes);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -39,10 +30,10 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Get a specific recipe by ID
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
-    if (!recipe || recipe.createdBy.toString() !== req.user.id) {
+    if (!recipe) {
       return res.status(404).json({ message: 'Recipe not found' });
     }
     res.json(recipe);
@@ -52,17 +43,16 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // Update a recipe
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const { title, ingredients, instructions, image } = req.body;
+    const { title, ingredients, instructions } = req.body;
     const recipe = await Recipe.findById(req.params.id);
-    if (!recipe || recipe.createdBy.toString() !== req.user.id) {
+    if (!recipe ) {
       return res.status(404).json({ message: 'Recipe not found' });
     }
     recipe.title = title || recipe.title;
     recipe.ingredients = ingredients || recipe.ingredients;
     recipe.instructions = instructions || recipe.instructions;
-    recipe.image = image || recipe.image;
     await recipe.save();
     res.json(recipe);
   } catch (err) {
@@ -71,10 +61,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete a recipe
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
-    if (!recipe || recipe.createdBy.toString() !== req.user.id) {
+    if (!recipe) {
       return res.status(404).json({ message: 'Recipe not found' });
     }
     await Recipe.deleteOne({ _id: recipe._id });
