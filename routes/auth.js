@@ -1,11 +1,9 @@
-// routes/auth.js
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const cors = require('cors');
 const router = express.Router();
 
-// Register new user
 router.use(cors());
 router.post('/register', async (req, res) => {
   try {

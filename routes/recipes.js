@@ -7,7 +7,6 @@ const cors = require('cors');
 router.use(cors());
 
 
-// Create a new recipe
 router.post('/', async (req, res) => {
   try {
     const { title, ingredients, instructions } = req.body;
@@ -19,7 +18,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all recipes
 router.get('/', async (req, res) => {
   try {
     const recipes = await Recipe.find();
@@ -29,7 +27,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get a specific recipe by ID
 router.get('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
@@ -42,7 +39,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update a recipe
 router.put('/:id', async (req, res) => {
   try {
     const { title, ingredients, instructions } = req.body;
@@ -60,7 +56,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete a recipe
 router.delete('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
